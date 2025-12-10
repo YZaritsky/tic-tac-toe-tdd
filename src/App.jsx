@@ -1,4 +1,23 @@
 import './App.css'
+import {useState} from "react";
+
+const Cell = () => {
+    const [val, setVal] = useState(0);
+
+    return (
+        <td  onClick={() => setVal(val + 1)}>{val}</td>
+    )
+}
+
+const Row = () => {
+    return (
+        <tr>
+            <Cell/>
+            <Cell/>
+            <Cell/>
+        </tr>
+    )
+}
 
 function App() {
     return (
@@ -7,21 +26,9 @@ function App() {
             <h1>Tic Tac Toe</h1>
             <table>
                 <tbody>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
+                <Row/>
+                <Row/>
+                <Row/>
                 </tbody>
             </table>
         </header>
