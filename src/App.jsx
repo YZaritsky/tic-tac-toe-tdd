@@ -2,13 +2,18 @@ import './App.css'
 import {useState} from "react";
 import {getWinner, isBoardFull} from "./utils.js";
 
-const Cell = ({val, onCellClick}) => {
+const Cell = ({val, onCellClick, isWinning, isDisabled}) => {
+    const cellClass = `cell ${val === 'X' ? 'cell-x' : val === 'O' ? 'cell-o' : ''} ${isWinning ? 'winning-cell' : ''} ${isDisabled ? 'disabled' : ''}`;
     return (
-        <td onClick={onCellClick}>{val}</td>
+        <td className={cellClass} onClick={onCellClick}>{val}</td>
     )
 }
 
-const Row = ({cells, onCellClick, index}) => {
+const Row = ({cells, onCellClick, index, winningCells, isDisabled}) => {
+    const isWinningCell = (row, col) => {
+        return winningCells?.some(([r, c]) => r === row && c === col) || false;
+    };
+    
     return (
         <tr>
             {cells.map((val, cellIndex) =>
@@ -16,6 +21,8 @@ const Row = ({cells, onCellClick, index}) => {
                     key={cellIndex}
                     val={val}
                     onCellClick={() => onCellClick(index, cellIndex)}
+                    isWinning={isWinningCell(index, cellIndex)}
+                    isDisabled={isDisabled}
                 />
             )}
         </tr>
@@ -42,10 +49,19 @@ function App() {
     const [currentPlayer, setCurrentPlayer] = useState('X');
     const [board, setBoard] = useState(initBoard(3));
     const [isGameOver, setIsGameOver] = useState(false);
-    const [winner, setWinner] = useState(false);
+    const [winner, setWinner] = useState(null);
+    const [winningCells, setWinningCells] = useState(null);
 
     const togglePlayer = () => {
         setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
+    }
+
+    const resetGame = () => {
+        setBoard(initBoard(3));
+        setCurrentPlayer('X');
+        setIsGameOver(false);
+        setWinner(null);
+        setWinningCells(null);
     }
 
     const onCellClick = (row, col) => {
@@ -53,10 +69,11 @@ function App() {
             const newBoard = cloneBoard(board);
             newBoard[row][col] = currentPlayer;
             setBoard(newBoard);
-            const winnerSign = getWinner(newBoard);
+            const winResult = getWinner(newBoard);
 
-            if (winnerSign) {
-                setWinner(winnerSign);
+            if (winResult) {
+                setWinner(winResult.winner);
+                setWinningCells(winResult.positions);
                 setIsGameOver(true);
             } else if (isBoardFull(newBoard)) {
                 setIsGameOver(true);
@@ -66,7 +83,7 @@ function App() {
         }
     }
 
-    const message = winner ? `Winner is: ${winner}` : isGameOver ? 'Game Over' : `Current player is: ${currentPlayer}`;
+    const message = winner ? `Winner is: ${winner}` : isGameOver ? 'Game Over - Draw!' : `Current player is: ${currentPlayer}`;
 
     return (
         <body>
@@ -76,10 +93,18 @@ function App() {
             <table>
                 <tbody>
                 {board.map((cells, index) => (
-                    <Row key={index} index={index} cells={cells} onCellClick={onCellClick}/>
+                    <Row 
+                        key={index} 
+                        index={index} 
+                        cells={cells} 
+                        onCellClick={onCellClick}
+                        winningCells={winningCells}
+                        isDisabled={isGameOver}
+                    />
                 ))}
                 </tbody>
             </table>
+            <button className="reset-button" onClick={resetGame}>Reset Game</button>
         </header>
         </body>
     )
