@@ -1,39 +1,57 @@
 import './App.css'
 import {useState} from "react";
 
-const Cell = ({currentPlayer, toggleCurrentPlayer}) => {
-    const [val, setVal] = useState(null);
-
-    const onClickHandler = () => {
-        if (val === null) {
-            setVal(currentPlayer);
-            toggleCurrentPlayer();
-        }
-    }
-
+const Cell = ({val, onCellClick}) => {
     return (
-        <td onClick={onClickHandler}>{val}</td>
+        <td onClick={onCellClick}>{val}</td>
     )
 }
 
-const Row = ({currentPlayer, toggleCurrentPlayer}) => {
+const Row = ({cells, onCellClick, index}) => {
     return (
         <tr>
-            {[1, 2, 3].map(index =>
+            {cells.map((val, cellIndex) =>
                 <Cell
-                    key={index}
-                    currentPlayer={currentPlayer}
-                    toggleCurrentPlayer={toggleCurrentPlayer}
+                    key={cellIndex}
+                    val={val}
+                    onCellClick={() => onCellClick(index, cellIndex)}
                 />
             )}
         </tr>
     )
 }
 
+const initBoard = (n) => {
+    const board = [];
+    for (let i = 0; i < n; i++) {
+        const row = [];
+        for (let j = 0; j < n; j++) {
+            row.push(null);
+        }
+        board.push(row);
+    }
+    return board;
+}
+
+const cloneBoard = (board) => {
+    return board.map(row => [...row]);
+}
+
 function App() {
     const [currentPlayer, setCurrentPlayer] = useState('X');
+    const [board, setBoard] = useState(initBoard(3));
+
     const togglePlayer = () => {
         setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
+    }
+
+    const onCellClick = (row, col) => {
+        if (board[row][col] === null) {
+            const newBoard = cloneBoard(board);
+            newBoard[row][col] = currentPlayer;
+            setBoard(newBoard);
+            togglePlayer();
+        }
     }
 
     return (
@@ -43,8 +61,8 @@ function App() {
             <h1 data-testid="current-player">Current Player: {currentPlayer}</h1>
             <table>
                 <tbody>
-                {[1, 2, 3].map(row => (
-                    <Row key={row} currentPlayer={currentPlayer} toggleCurrentPlayer={togglePlayer}/>
+                {board.map((cells, index) => (
+                    <Row key={index} index={index} cells={cells} onCellClick={onCellClick}/>
                 ))}
                 </tbody>
             </table>
