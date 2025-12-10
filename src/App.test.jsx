@@ -3,7 +3,7 @@ import App from "./App.jsx";
 
 test('Renders Tic Tac Toe heading', () => {
     render(<App/>);
-    const headingElement = screen.getByRole('heading');
+    const [headingElement] = screen.getAllByRole('heading');
     expect(headingElement).toHaveTextContent('Tic Tac Toe');
 })
 
@@ -17,12 +17,20 @@ test('Render tic tac toe table', () => {
     expect(cells).toHaveLength(9);
 })
 
-test('Cell should render click counter', async () => {
+test('Should render current player', () => {
     render(<App/>);
-    const [cell] = screen.getAllByRole('cell');
-    expect(cell).toHaveTextContent('0');
-    fireEvent.click(cell)
-    expect(cell).toHaveTextContent('1');
-    fireEvent.click(cell)
-    expect(cell).toHaveTextContent('2');
+    const playerElement = screen.getByText(/Current Player/i);
+    expect(playerElement).toBeInTheDocument();
+})
+
+test('Cell click - should render current player', async () => {
+    render(<App/>);
+    const [cell1, cell2] = screen.getAllByRole('cell');
+    expect(cell1).toBeEmptyDOMElement();
+    fireEvent.click(cell1)
+    expect(cell1).toHaveTextContent('X');
+    fireEvent.click(cell1)
+    expect(cell1).toHaveTextContent('X');
+    fireEvent.click(cell2)
+    expect(cell2).toHaveTextContent('O');
 })
