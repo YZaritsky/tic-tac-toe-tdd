@@ -34,3 +34,29 @@ test('Cell click - should render current player', async () => {
     fireEvent.click(cell2)
     expect(cell2).toHaveTextContent('O');
 })
+
+test('Should show winner', () => {
+    render(<App/>);
+    const cells = screen.getAllByRole('cell');
+    fireEvent.click(cells[0]); // X
+    fireEvent.click(cells[3]); // O
+    fireEvent.click(cells[1]); // X
+    fireEvent.click(cells[4]); // O
+    fireEvent.click(cells[2]); // X wins
+    expect(screen.getByText(/Winner is/i)).toBeInTheDocument();
+})
+
+test('Should end with draw', () => {
+    render(<App/>);
+    const cells = screen.getAllByRole('cell');
+    fireEvent.click(cells[0]); // X
+    fireEvent.click(cells[1]); // O
+    fireEvent.click(cells[2]); // X
+    fireEvent.click(cells[4]); // O
+    fireEvent.click(cells[3]); // X
+    fireEvent.click(cells[5]); // O
+    fireEvent.click(cells[7]); // X
+    fireEvent.click(cells[6]); // O
+    fireEvent.click(cells[8]); // X
+    expect(screen.getByText(/Game Over/i)).toBeInTheDocument();
+})

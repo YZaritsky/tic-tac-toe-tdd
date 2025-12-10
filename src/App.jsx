@@ -1,5 +1,6 @@
 import './App.css'
 import {useState} from "react";
+import {getWinner, isBoardFull} from "./utils.js";
 
 const Cell = ({val, onCellClick}) => {
     return (
@@ -40,25 +41,38 @@ const cloneBoard = (board) => {
 function App() {
     const [currentPlayer, setCurrentPlayer] = useState('X');
     const [board, setBoard] = useState(initBoard(3));
+    const [isGameOver, setIsGameOver] = useState(false);
+    const [winner, setWinner] = useState(false);
 
     const togglePlayer = () => {
         setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
     }
 
     const onCellClick = (row, col) => {
-        if (board[row][col] === null) {
+        if (board[row][col] === null && !winner) {
             const newBoard = cloneBoard(board);
             newBoard[row][col] = currentPlayer;
             setBoard(newBoard);
-            togglePlayer();
+            const winnerSign = getWinner(newBoard);
+
+            if (winnerSign) {
+                setWinner(winnerSign);
+                setIsGameOver(true);
+            } else if (isBoardFull(newBoard)) {
+                setIsGameOver(true);
+            } else {
+                togglePlayer();
+            }
         }
     }
+
+    const message = winner ? `Winner is: ${winner}` : isGameOver ? 'Game Over' : `Current player is: ${currentPlayer}`;
 
     return (
         <body>
         <header>
             <h1>Tic Tac Toe</h1>
-            <h1 data-testid="current-player">Current Player: {currentPlayer}</h1>
+            <h2>{message}</h2>
             <table>
                 <tbody>
                 {board.map((cells, index) => (
